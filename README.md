@@ -43,33 +43,17 @@ PY
 
 ## 部署
 
-### 当前状态（2026-11-10）
-已通过 WorkBuddy 发布应用部署到云端，访问链接：
-`https://meili-awakening.app.workbuddy.host/?sharecode=MPTFRF4U7C`
+### GitHub 仓库（已上传）
+`https://github.com/amjack/meili-awakening`（PUBLIC，main 分支）
 
-### 自定义域名 mei.ssstool.cn（待完成）
-发布平台的 TLS 证书只覆盖 `*.app.workbuddy.host`，**不能直接 CNAME 自定义域名**（浏览器证书校验不通过）。
-需要以下两种方案之一：
-
-**方案 A：CloudBase 静态托管（推荐，与 nukorhome.com 同款）**
-```bash
-# 1. 用托管 nukorhome.com 的腾讯云账号登录（本机当前 tcb 登录的是另一个账号）
-tcb login
-# 2. 进入项目目录，上传静态文件（envId 换成实际环境）
-cd /Applications/zhangjunjie/fang-cal/meili
-tcb hosting deploy ./ -e <envId>
-# 3. 云开发控制台 → 静态托管 → 域名绑定 → 添加 mei.ssstool.cn（自动签发证书）
-# 4. DNSPod（ssstool.cn 的 NS 在 DNSPod）添加 CNAME：
-#    主机记录 mei → 目标 <envId 对应的 tcbaccess 域名，控制台绑定页会给出>
-```
-
-**方案 B：Vercel（与 fang.ssstool.cn 同款）**
-```bash
-# meili/ 为纯静态零构建，直接作为项目根目录部署
-vercel deploy --prod
-# Vercel 项目设置 → Domains → 添加 mei.ssstool.cn
-# DNSPod 添加 CNAME：mei → cname.vercel-dns.com
-```
+### Vercel 部署步骤
+1. 登录 [vercel.com](https://vercel.com) → **Add New… → Project** → **Import** 选择 `amjack/meili-awakening`
+2. Framework Preset 选 **Other**（纯静态零构建，无需任何配置，根目录 `index.html` 即入口）
+3. **Deploy** → 约 10 秒完成，获得 `xxx.vercel.app` 链接
+4. 绑定自定义域名：**Settings → Domains → Add** `mei.ssstool.cn`
+   - Vercel 会提示添加 DNS 记录，去 DNSPod（ssstool.cn 的 NS 在 DNSPod）加：
+     ` mei  CNAME  cname.vercel-dns.com`
+   - 与 fang.ssstool.cn 同款路径，证书由 Vercel 自动签发
 
 ### 本机现有基础设施（2026-11-10 实测）
 | 域名 | 托管方式 |
@@ -78,3 +62,10 @@ vercel deploy --prod
 | nukorhome.com | CloudBase 静态托管（tcbaccess.tencentcloudbase.com） |
 | fang.ssstool.cn | Vercel（cname.vercel-dns.com） |
 | ssstool.cn DNS | DNSPod（clark/optional.dnspod.net） |
+
+### 更新流程
+改完 `meili/` 内文件后：
+```bash
+cd meili && git add -A && git commit -m "更新说明" && git push
+# Vercel 已绑定该仓库会自动重新部署
+```
